@@ -1,6 +1,9 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:my_special_days/colors.dart';
+import 'package:my_special_days/tabbars/add_special_day.dart';
+import 'package:my_special_days/tabbars/calendar.dart';
+import 'package:my_special_days/tabbars/show_special_days.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -8,8 +11,14 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  int currentNavIndex =0;
+  int currentNavIndex = 1;
+  PageController _pageController =
+      PageController(initialPage: 0, keepPage: true);
 
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -23,16 +32,18 @@ class _HomePageState extends State<HomePage> {
           PopupMenuItem<String>(child: const Text('menu option 3'), value: '3'),
         ],
         elevation: 8.0,
-      ).then<void>((String itemSelected) {
-        if (itemSelected == null) return;
-        if (itemSelected == "1") {
-          //code here
-        } else if (itemSelected == "2") {
-          //code here
-        } else {
-          //code here
-        }
-      });
+      ).then<void>(
+        (String itemSelected) {
+          if (itemSelected == null) return;
+          if (itemSelected == "1") {
+            //code here
+          } else if (itemSelected == "2") {
+            //code here
+          } else {
+            //code here
+          }
+        },
+      );
     }
 
     Widget titleWidget = new Container(
@@ -60,9 +71,7 @@ class _HomePageState extends State<HomePage> {
           Text(
             "My Special Days",
             style: TextStyle(
-                color: Colors.white,
-                fontSize: 30,
-                fontFamily: 'BerkshireSwash'),
+                color: Colors.white, fontSize: 30, fontFamily: 'BitterRegular'),
           ),
           GestureDetector(
             onTap: _showPopupMenu,
@@ -78,9 +87,26 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       bottomNavigationBar: _getNavigationBar(context),
       body: Container(
-        child: ListView(
+        child: Column(
           children: [
             titleWidget,
+            Expanded(
+              child: PageView(
+                controller: _pageController,
+                pageSnapping: true,
+                scrollDirection: Axis.horizontal,
+                onPageChanged: (index) {
+                  setState(() {
+                    currentNavIndex = index;
+                  });
+                },
+                children: [
+                  Calendar(),
+                  ShowSpecialDays(),
+                  AddSpecialDay(),
+                ],
+              ),
+            ),
           ],
         ),
       ),
@@ -117,9 +143,12 @@ class _HomePageState extends State<HomePage> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _buildNavItem(Icons.calendar_today_outlined,0),
-              _buildNavItem(Icons.plus_one,1),
-              _buildNavItem(Icons.access_alarm,2),
+              _buildNavItem(SvgPicture.asset("assets/icons/calendarblack.svg"),
+                  SvgPicture.asset("assets/icons/calendarwhite.svg"), 0),
+              _buildNavItem(SvgPicture.asset("assets/icons/listblack.svg"),
+                  SvgPicture.asset("assets/icons/listwhite.svg"), 1),
+              _buildNavItem(SvgPicture.asset("assets/icons/addblack.svg"),
+                  SvgPicture.asset("assets/icons/add.svg"), 2),
             ],
           ),
         )
@@ -127,10 +156,12 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  _buildNavItem(IconData icon,int index) {
+  _buildNavItem(Widget iconSelected, Widget iconNotSelected, int index) {
     return GestureDetector(
-      onTap: (){
+      onTap: () {
         setState(() {
+          _pageController.animateToPage(index,
+              duration: Duration(milliseconds: 200), curve: Curves.ease);
           currentNavIndex = index;
         });
       },
@@ -139,8 +170,13 @@ class _HomePageState extends State<HomePage> {
         backgroundColor: AppColors.appColor_l3,
         child: CircleAvatar(
           radius: 26,
-          backgroundColor: currentNavIndex==index ? Colors.white.withOpacity(0.9): Colors.transparent,
-          child: Icon(icon,color: currentNavIndex==index ? Colors.black:Colors.white),
+          backgroundColor: currentNavIndex == index
+              ? Colors.white.withOpacity(0.9)
+              : Colors.transparent,
+          child: Container(
+            padding: EdgeInsets.all(10),
+            child: currentNavIndex == index ? iconSelected : iconNotSelected,
+          ),
         ),
       ),
     );
