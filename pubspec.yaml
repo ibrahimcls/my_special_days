@@ -36,6 +36,7 @@ dependencies:
   flutter_svg:
   intl:
   flutter_slidable:
+  table_calendar:
 
 dev_dependencies:
   flutter_test:

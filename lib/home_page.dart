@@ -101,7 +101,7 @@ class _HomePageState extends State<HomePage> {
                   });
                 },
                 children: [
-                  Calendar(),
+                  Calendar(selectedDay: DateTime.now(),),
                   ShowSpecialDays(),
                   AddSpecialDay(),
                 ],
